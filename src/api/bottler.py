@@ -2,35 +2,11 @@ from fastapi import APIRouter, Depends
 from enum import Enum
 from pydantic import BaseModel
 from src.api import auth
-
-# changes made
-
 import sqlalchemy
 from src import database as db
 import os
 import dotenv
 from sqlalchemy import create_engine
-
-CREATE TABLE global_inventory (
-    id bigint generated always as identity,
-    num_green_potions int,
-    num_green_ml int,
-    gold int
-);
-
-with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text("SELECT num_green_ml FROM gloabl_inventory"))
-        if result > 0:
-            connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_green_ml = 0"))
-        
-def database_connection_url():
-    dotenv.load_dotenv()
-
-    return os.environ.get("POSTGRES_URI")
-
-engine = create_engine(database_connection_url(), pool_pre_ping=True)
-
-# changes made
 
 router = APIRouter(
     prefix="/bottler",
@@ -54,6 +30,9 @@ def get_bottle_plan():
     """
     Go from barrel to bottle.
     """
+    
+    with db.engine.begin() as connection:
+        result = connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory"))
 
     # Each bottle has a quantity of what proportion of red, blue, and
     # green potion to add.
@@ -63,7 +42,8 @@ def get_bottle_plan():
 
     return [
             {
-                "potion_type": [100, 0, 0, 0],
+                #"potion_type": [100, 0, 0, 0],
+                "potion_type": [0, 0, result, 0],
                 "quantity": 5,
             }
         ]

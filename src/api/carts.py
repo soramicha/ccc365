@@ -2,33 +2,11 @@ from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel
 from src.api import auth
 from enum import Enum
-
-# changes made
-
 import sqlalchemy
 from src import database as db
 import os
 import dotenv
 from sqlalchemy import create_engine
-
-CREATE TABLE global_inventory (
-    id bigint generated always as identity,
-    num_green_potions int,
-    num_green_ml int,
-    gold int
-);
-
-with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text("SELECT * FROM global_inventory"))
-        
-def database_connection_url():
-    dotenv.load_dotenv()
-
-    return os.environ.get("POSTGRES_URI")
-
-engine = create_engine(database_connection_url(), pool_pre_ping=True)
-
-# changes made
 
 router = APIRouter(
     prefix="/carts",
@@ -54,6 +32,10 @@ def search_orders(
     sort_col: search_sort_options = search_sort_options.timestamp,
     sort_order: search_sort_order = search_sort_order.desc,
 ):
+    
+    with db.engine.begin() as connection:
+        result = connection.execute(sqlalchemy.text("SELECT * FROM global_inventory"))
+        
     """
     Search for cart line items by customer name and/or potion sku.
 

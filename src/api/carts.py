@@ -4,9 +4,6 @@ from src.api import auth
 from enum import Enum
 import sqlalchemy
 from src import database as db
-import os
-import dotenv
-from sqlalchemy import create_engine
 
 router = APIRouter(
     prefix="/carts",

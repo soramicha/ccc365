@@ -18,7 +18,7 @@ class PotionInventory(BaseModel):
 @router.post("/deliver/{order_id}")
 def post_deliver_bottles(potions_delivered: list[PotionInventory], order_id: int):
     with db.engine.begin() as connection:
-        connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_green_potions = num_green_potions - {potions_delivered[0].quantity}, num_green_ml = num_green_ml - (100 * {potions_delivered[0].quantity})"))
+        connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_green_potions = num_green_potions + {potions_delivered[0].quantity}, num_green_ml = num_green_ml - (100 * {potions_delivered[0].quantity})"))
     print(f"potions delivered: {potions_delivered} order_id: {order_id}")
 
     return "OK"
@@ -32,12 +32,12 @@ def get_bottle_plan():
     with db.engine.begin() as connection:
         result = connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory"))
 
-    num_green_ml = 0
-    for i in result:
+    # retrieve row result
+    for i in result.all():
         num_green_ml = i[0]
+        
+    bottles = num_green_ml / 100 # because each bottle only contains 100 ml
     
-    bottles = num_green_ml / 100
-    print(bottles)
     # Each bottle has a quantity of what proportion of red, blue, and green potion to add.
     # Expressed in integers from 1 to 100 that must sum up to 100.
 
@@ -45,7 +45,7 @@ def get_bottle_plan():
 
     return [
             {
-                "potion_type": [0, 0, 100, 0],
+                "potion_type": [0, 1, 0, 0],
                 "quantity": bottles,
             }
         ]

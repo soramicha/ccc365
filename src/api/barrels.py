@@ -36,11 +36,18 @@ def post_deliver_barrels(barrels_delivered: list[Barrel], order_id: int):
 def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     print(wholesale_catalog)
     
-    num_green_potions = 0
+    #num_green_potions = 0
+    print("Begin Connection")
     with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text("SELECT num_green_potions FROM global_inventory"))
-    for i in result:
-        num_green_potions = int(i[0])
+        print("Connected")
+        result_potions = connection.execute(sqlalchemy.text("SELECT num_green_potions FROM global_inventory"))
+    
+        # get the values of the number of green potions
+        for i in result_potions:
+            num_green_potions = int(i[0])
+        
+    # if there are less than 10 green potions, then buy a small green barrel, otherwise do nothing
+    # make sure you have enough gold before purchasing a small green barrel
     if num_green_potions < 10:
         num = 1
     else:
@@ -48,7 +55,7 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     
     return [
             {
-                "sku": "SMALL_GREEN_BARREL", # "SMALL_RED_BARREL",
+                "sku": "SMALL_GREEN_BARREL",
                 "quantity": num,
             }
         ]

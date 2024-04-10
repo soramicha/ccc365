@@ -35,19 +35,13 @@ def post_deliver_barrels(barrels_delivered: list[Barrel], order_id: int):
 @router.post("/plan")
 def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     print(wholesale_catalog)
-    
-    #num_green_potions = 50
-    print("Begin Connection")
+  
     with db.engine.begin() as connection:
-        print("Connected")
-        result_potions = connection.execute(sqlalchemy.text('SELECT num_green_potions FROM global_inventory'))
-        # get the values of the number of green potions
-        for i in result_potions.all():
-            num_green_potions = i[0]
+        result = connection.execute(sqlalchemy.text('SELECT num_green_potions FROM global_inventory'))
 
     # if there are less than 10 green potions, then buy a small green barrel, otherwise do nothing
     # make sure you have enough gold before purchasing a small green barrel
-    if num_green_potions < 10:
+    if result.fetchone()[0] < 10:
         num = 1
     else:
         num = 0

@@ -12,13 +12,13 @@ def get_catalog():
     """
     Each unique item combination must have only a single price.
     """
-    
-    if result.fetchone()[0] > 0:
+    num = result.fetchone()[0]
+    if num > 0:
         return [
                 {
                     "sku": "GREEN_POTION_0",
                     "name": "green potion",
-                    "quantity": result.fetchone()[0],
+                    "quantity": num,
                     "price": 50,
                     "potion_type": [0, 100, 0, 0],
                 }

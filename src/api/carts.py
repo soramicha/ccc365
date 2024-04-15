@@ -113,9 +113,9 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
         # purchasing one bottle at a time
         print("CHECKOUT: " + potion_type + " is the potion_type")
         if potion_type == "GREEN_POTION_0":
-            connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_green_potions = num_green_potions - 1, gold = gold + 1"))
+            connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_green_potions = num_green_potions - 1, gold = gold + 40"))
         elif potion_type == "RED_POTION_0":
-            connection.execute(sqlalchemy.text("UPDATE global_inventory SET red_potions = red_potions - 1, gold = gold + 1"))
+            connection.execute(sqlalchemy.text("UPDATE global_inventory SET red_potions = red_potions - 1, gold = gold + 50"))
         elif potion_type == "BLUE_POTION_0":
-            connection.execute(sqlalchemy.text("UPDATE global_inventory SET blue_potions = blue_potions - 1, gold = gold + 1"))
+            connection.execute(sqlalchemy.text("UPDATE global_inventory SET blue_potions = blue_potions - 1, gold = gold + 60"))
     return {"total_potions_bought": 1, "total_gold_paid": 1}

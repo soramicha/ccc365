@@ -96,11 +96,10 @@ def create_cart(new_cart: Customer):
 class CartItem(BaseModel):
     quantity: int
 
+customercart = {}
 @router.post("/{cart_id}/items/{item_sku}")
 def set_item_quantity(cart_id: int, item_sku: str, cart_item: CartItem):
-    global potion_type
-    potion_type = item_sku
-    print("SET ITEM QUANTITY:" + potion_type + " is the potion type purchased by the customer with cart_id of " + str(cart_id))
+    customercart[cart_id] = [item_sku, cart_item.quantity]
     return "OK"
 
 
@@ -109,13 +108,18 @@ class CartCheckout(BaseModel):
 
 @router.post("/{cart_id}/checkout")
 def checkout(cart_id: int, cart_checkout: CartCheckout):
+    totalgold = 0
     with db.engine.begin() as connection:
         # purchasing one bottle at a time
-        print("CHECKOUT: " + potion_type + " is the potion_type")
-        if potion_type == "GREEN_POTION_0":
-            connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_green_potions = num_green_potions - 1, gold = gold + 40"))
-        elif potion_type == "RED_POTION_0":
-            connection.execute(sqlalchemy.text("UPDATE global_inventory SET red_potions = red_potions - 1, gold = gold + 50"))
-        elif potion_type == "BLUE_POTION_0":
-            connection.execute(sqlalchemy.text("UPDATE global_inventory SET blue_potions = blue_potions - 1, gold = gold + 60"))
-    return {"total_potions_bought": 1, "total_gold_paid": 1}
+        if customercart.get(cart_id)[0] == "GREEN_POTION_0":
+            connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_green_potions = num_green_potions - {customercart.get(cart_id)[1]}, gold = gold + 40 * {customercart.get(cart_id)[1]}"))
+            totalgold = 40 * customercart.get(cart_id)[1]
+        elif customercart.get(cart_id)[0] == "RED_POTION_0":
+            connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET red_potions = red_potions - {customercart.get(cart_id)[1]}, gold = gold + 50 * {customercart.get(cart_id)[1]}"))
+            totalgold = 50 * customercart.get(cart_id)[1]
+        elif customercart.get(cart_id)[0] == "BLUE_POTION_0":
+            connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET blue_potions = blue_potions - {customercart.get(cart_id)[1]}, gold = gold + 60 * {customercart.get(cart_id)[1]}"))
+            totalgold = 60 * customercart.get(cart_id)[1]
+    totalpotions = {customercart.get(cart_id)[1]}
+    customercart.pop(cart_id)
+    return {"total_potions_bought": totalpotions, "total_gold_paid": totalgold}

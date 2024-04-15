@@ -96,9 +96,11 @@ def create_cart(new_cart: Customer):
 class CartItem(BaseModel):
     quantity: int
 
-
 @router.post("/{cart_id}/items/{item_sku}")
 def set_item_quantity(cart_id: int, item_sku: str, cart_item: CartItem):
+    global potion_type
+    potion_type = item_sku
+    print("SET ITEM QUANTITY:" + potion_type + " is the potion type purchased by the customer with cart_id of " + str(cart_id))
     return "OK"
 
 
@@ -109,6 +111,11 @@ class CartCheckout(BaseModel):
 def checkout(cart_id: int, cart_checkout: CartCheckout):
     with db.engine.begin() as connection:
         # purchasing one bottle at a time
-        connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_green_potions = num_green_potions - 1, gold = gold + 1"))
-
+        print("CHECKOUT: " + potion_type + " is the potion_type")
+        if potion_type == "GREEN_POTION_0":
+            connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_green_potions = num_green_potions - 1, gold = gold + 1"))
+        elif potion_type == "RED_POTION_0":
+            connection.execute(sqlalchemy.text("UPDATE global_inventory SET red_potions = red_potions - 1, gold = gold + 1"))
+        elif potion_type == "BLUE_POTION_0":
+            connection.execute(sqlalchemy.text("UPDATE global_inventory SET blue_potions = blue_potions - 1, gold = gold + 1"))
     return {"total_potions_bought": 1, "total_gold_paid": 1}

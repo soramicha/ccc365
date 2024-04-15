@@ -14,18 +14,18 @@ def get_catalog():
     """
     Each unique item combination must have only a single price.
     """
+    mylist = []
     if blue.fetchone()[0] > 0:
-        return [
-                {
+        mylist.append({
                     "sku": "BLUE_POTION_0",
                     "name": "blue potion",
                     "quantity": 1,
                     "price": 60,
                     "potion_type": [0, 0, 100, 0],
                 }
-            ]
+            )
     if red.fetchone()[0] > 0:
-        return [
+        mylist.append(
                 {
                     "sku": "RED_POTION_0",
                     "name": "red potion",
@@ -33,9 +33,9 @@ def get_catalog():
                     "price": 50,
                     "potion_type": [100, 0, 0, 0],
                 }
-            ]
+        )
     if green.fetchone()[0] > 0:
-        return [
+        mylist.append(
                 {
                     "sku": "GREEN_POTION_0",
                     "name": "green potion",
@@ -43,5 +43,5 @@ def get_catalog():
                     "price": 40,
                     "potion_type": [0, 100, 0, 0],
                 }
-            ]
-    return []
+        )
+    return mylist

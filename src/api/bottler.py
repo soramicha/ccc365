@@ -19,11 +19,11 @@ class PotionInventory(BaseModel):
 def post_deliver_bottles(potions_delivered: list[PotionInventory], order_id: int):
     with db.engine.begin() as connection:
         if potions_delivered[0].potion_type == [0, 100, 0, 0]: # if it's green
-                connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_green_potions = num_green_potions + {potions_delivered[0].quantity}, num_green_ml = num_green_ml - (100 * {potions_delivered[0].quantity})"))
+                connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_green_potions = num_green_potions + :potions, num_green_ml = num_green_ml - (100 * :potions)"), [{"potions": {potions_delivered[0].quantity}}])
         if potions_delivered[0].potion_type == [100, 0, 0, 0]: # if it's red
-            connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET red_potions = red_potions + {potions_delivered[0].quantity}, red_ml = red_ml - (100 * {potions_delivered[0].quantity})"))
+            connection.execute(sqlalchemy.text("UPDATE global_inventory SET red_potions = red_potions + :potions, red_ml = red_ml - (100 * :potions)"), [{"potions": {potions_delivered[0].quantity}}])
         if potions_delivered[0].potion_type == [0, 0, 100, 0]: # if it's blue
-            connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET blue_potions = blue_potions + {potions_delivered[0].quantity}, blue_ml = blue_ml - (100 * {potions_delivered[0].quantity})"))
+            connection.execute(sqlalchemy.text("UPDATE global_inventory SET blue_potions = blue_potions + :potions, blue_ml = blue_ml - (100 * :potions)"), [{"potions": {potions_delivered[0].quantity}}])
     print(f"potions delivered: {potions_delivered} order_id: {order_id}")
 
     return "OK"

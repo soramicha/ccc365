@@ -112,13 +112,13 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
     with db.engine.begin() as connection:
         # purchasing one bottle at a time
         if customercart.get(cart_id)[0] == "GREEN_POTION_0":
-            connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET num_green_potions = num_green_potions - {customercart.get(cart_id)[1]}, gold = gold + 40 * {customercart.get(cart_id)[1]}"))
+            connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_green_potions = num_green_potions - :potions, gold = gold + 40 * :potions"), [{"potions": {customercart.get(cart_id)[1]}}])
             totalgold = 40 * customercart.get(cart_id)[1]
         elif customercart.get(cart_id)[0] == "RED_POTION_0":
-            connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET red_potions = red_potions - {customercart.get(cart_id)[1]}, gold = gold + 50 * {customercart.get(cart_id)[1]}"))
+            connection.execute(sqlalchemy.text("UPDATE global_inventory SET red_potions = red_potions - :potions, gold = gold + 50 * :potions"), [{"potions": {customercart.get(cart_id)[1]}}])
             totalgold = 50 * customercart.get(cart_id)[1]
         elif customercart.get(cart_id)[0] == "BLUE_POTION_0":
-            connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET blue_potions = blue_potions - {customercart.get(cart_id)[1]}, gold = gold + 60 * {customercart.get(cart_id)[1]}"))
+            connection.execute(sqlalchemy.text("UPDATE global_inventory SET blue_potions = blue_potions - :potions, gold = gold + 60 * :potions"), [{"potions": {customercart.get(cart_id)[1]}}])
             totalgold = 60 * customercart.get(cart_id)[1]
     totalpotions = {customercart.get(cart_id)[1]}
     customercart.pop(cart_id)

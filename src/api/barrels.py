@@ -1,3 +1,4 @@
+from sqlite3 import IntegrityError
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from src.api import auth
@@ -21,75 +22,57 @@ class Barrel(BaseModel):
 
 @router.post("/deliver/{order_id}")
 def post_deliver_barrels(barrels_delivered: list[Barrel], order_id: int):
+    print(barrels_delivered)
+    
     with db.engine.begin() as connection:
-        if barrels_delivered[0].sku == "SMALL_BLUE_BARREL" or barrels_delivered[0].sku == "MINI_BLUE_BARREL":
-            connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET gold = gold - {barrels_delivered[0].price}, blue_ml = blue_ml + {barrels_delivered[0].ml_per_barrel}"))
-        if barrels_delivered[0].sku == "SMALL_RED_BARREL" or barrels_delivered[0].sku == "MINI_RED_BARREL":
-            connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET gold = gold - {barrels_delivered[0].price}, red_ml = red_ml + {barrels_delivered[0].ml_per_barrel}"))
-        if barrels_delivered[0].sku == "SMALL_GREEN_BARREL" or barrels_delivered[0].sku == "MINI_GREEN_BARREL":
-            connection.execute(sqlalchemy.text(f"UPDATE global_inventory SET gold = gold - {barrels_delivered[0].price}, num_green_ml = num_green_ml + {barrels_delivered[0].ml_per_barrel}"))
+        try:
+            if barrels_delivered[0].sku == "SMALL_BLUE_BARREL" or barrels_delivered[0].sku == "MINI_BLUE_BARREL":
+                connection.execute(sqlalchemy.text("UPDATE global_inventory SET gold = gold - :gold, blue_ml = blue_ml + :ml"), [{"gold": barrels_delivered[0].price, "ml": {barrels_delivered[0].ml_per_barrel}}])
+            if barrels_delivered[0].sku == "SMALL_RED_BARREL" or barrels_delivered[0].sku == "MINI_RED_BARREL":
+                connection.execute(sqlalchemy.text("UPDATE global_inventory SET gold = gold - :gold, red_ml = red_ml + :ml"), [{"gold": barrels_delivered[0].price, "ml": {barrels_delivered[0].ml_per_barrel}}])
+            if barrels_delivered[0].sku == "SMALL_GREEN_BARREL" or barrels_delivered[0].sku == "MINI_GREEN_BARREL":
+                connection.execute(sqlalchemy.text("UPDATE global_inventory SET gold = gold - :gold, num_green_ml = num_green_ml + :ml"), [{"gold": barrels_delivered[0].price, "ml": {barrels_delivered[0].ml_per_barrel}}])
+        except IntegrityError:
+            return "IntegrityError!"
+    
     print(f"barrels delievered: {barrels_delivered} order_id: {order_id}")
 
     return "OK"
 
 # Gets called once a day
+count = 1
 @router.post("/plan")
 def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     print(wholesale_catalog)
-  
-    with db.engine.begin() as connection:
-        green = connection.execute(sqlalchemy.text('SELECT num_green_potions FROM global_inventory'))
-        blue = connection.execute(sqlalchemy.text('SELECT blue_potions FROM global_inventory'))
-        red = connection.execute(sqlalchemy.text('SELECT red_potions FROM global_inventory'))
-        result = connection.execute(sqlalchemy.text('SELECT gold FROM global_inventory'))
     
-    gold = result.fetchone()[0]
-    if gold < 60:
-        return [
-            {
-                "sku": "SMALL_GREEN_BARREL",
-                "quantity": 0,
-            }
-        ]
-    if blue.fetchone()[0] < 1 and gold >= 60:
+    if count % 3 == 0:
+        count += 1
         return [
             {
                 "sku": "MINI_BLUE_BARREL",
                 "quantity": 1,
             }
         ]
-    elif red.fetchone()[0] < 1 and gold >= 60:
+    elif count % 3 == 1:
+        count += 1
         return [
                 {
                     "sku": "MINI_RED_BARREL",
                     "quantity": 1,
                 }
             ]
-    elif green.fetchone()[0] < 1 and gold >= 60:
+    elif count % 3 == 2:
+        count += 1
         return [
             {
                 "sku": "MINI_GREEN_BARREL",
                 "quantity": 1,
             }
         ]
-    elif blue.fetchone()[0] < 1 and gold >= 120:
-        return [
-            {
-                "sku": "SMALL_BLUE_BARREL",
-                "quantity": 1,
-            }
-        ]
-    elif red.fetchone()[0] < 1 and gold >= 100:
+    else:
         return [
                 {
-                    "sku": "SMALL_RED_BARREL",
-                    "quantity": 1,
+                    "sku": "SMALL_GREEN_BARREL",
+                    "quantity": 0,
                 }
             ]
-    elif green.fetchone()[0] < 1 and gold >= 100:
-        return [
-            {
-                "sku": "SMALL_GREEN_BARREL",
-                "quantity": 1,
-            }
-        ]

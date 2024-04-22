@@ -98,7 +98,7 @@ def create_cart(new_cart: Customer):
             return "INTEGRITY ERROR!"
         else:
             cart_id = connection.execute(sqlalchemy.text("SELECT cart_id FROM carts WHERE customer_name = :name"), [{"name": new_cart.customer_name}])
-    return {"cart_id": cart_id}
+    return {"cart_id": cart_id.fetchone()[0]}
 
 
 class CartItem(BaseModel):
@@ -147,8 +147,4 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
                 totalgold = 75 * quantity
         except IntegrityError:
             return "INTEGRITY ERROR!"
-        else:
-            # remove user from cart_items from table and carts
-            connection.execute(sqlalchemy.text("DELETE FROM cart_items WHERE customer_cart_id = :cart_id"), [{"cart_id": cart_id}])
-            connection.execute(sqlalchemy.text("DELETE FROM carts WHERE cart_id = :cart_id"), [{"cart_id": cart_id}])
         return {"total_potions_bought": quantity, "total_gold_paid": totalgold}

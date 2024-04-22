@@ -73,7 +73,7 @@ def get_bottle_plan():
             potioncount = connection.execute(sqlalchemy.text("SELECT potion_history FROM global_inventory"))
             potionhistory = potioncount.fetchone()[0]
             # purple potion
-            if numblue >= 50 and numred >= 50 and (potionhistory + 1) % 4 == 1:
+            if numblue >= 50 and numred >= 50 and (potionhistory + 1) % 4 == 3:
                 connection.execute(sqlalchemy.text("UPDATE global_inventory SET potion_history = potion_history + 1"))
                 purplergbd = connection.execute(sqlalchemy.text("SELECT red, green, blue, dark FROM mypotiontypes WHERE name = 'burple'"))
                 rgbd = purplergbd.fetchone()
@@ -94,7 +94,7 @@ def get_bottle_plan():
                         }
                     ]
             
-            elif numred >= 100 and (potionhistory + 1) % 4 == 3:
+            elif numred >= 100 and (potionhistory + 1) % 4 == 1:
                 connection.execute(sqlalchemy.text("UPDATE global_inventory SET potion_history = potion_history + 1"))
                 redrgbd = connection.execute(sqlalchemy.text("SELECT red, green, blue, dark FROM mypotiontypes WHERE name = 'RARA_RED'"))
                 rgbd = redrgbd.fetchone()

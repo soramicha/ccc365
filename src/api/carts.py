@@ -147,4 +147,7 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
                 totalgold = 75 * quantity
         except IntegrityError:
             return "INTEGRITY ERROR!"
+        else:
+            connection.execute(sqlalchemy.text("DELETE FROM cart_items WHERE customer_cart_id = :cart_id"), [{"cart_id": cart_id}])
+            connection.execute(sqlalchemy.text("DELETE FROM carts WHERE cart_id = :cart_id"), [{"cart_id": cart_id}])
         return {"total_potions_bought": quantity, "total_gold_paid": totalgold}

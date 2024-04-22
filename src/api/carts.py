@@ -113,7 +113,7 @@ def set_item_quantity(cart_id: int, item_sku: str, cart_item: CartItem):
             connection.execute(sqlalchemy.text("INSERT INTO cart_items (customer_cart_id, potion_type_id, quantity) VALUES (:cart_id, :potion_id, :quantity)"), [{"cart_id": cart_id, "potion_id": potion_id, "quantity": cart_item.quantity}])
         except IntegrityError:
             return "INTEGRITY ERROR!"
-    return "Successfully set item quantity"
+    return "OK"
 
 
 class CartCheckout(BaseModel):

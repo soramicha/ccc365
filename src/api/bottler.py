@@ -116,12 +116,7 @@ def get_bottle_plan():
                         }
                     ]
             connection.execute(sqlalchemy.text("UPDATE global_inventory SET potion_history = potion_history + 1"))
-            return [
-                    {
-                        "potion_type": [0, 0, 0, 0],
-                        "quantity": 0,
-                    }
-                ]
+            return []
 
 if __name__ == "__main__":
     print(get_bottle_plan())

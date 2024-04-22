@@ -128,7 +128,6 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
             r = row1.fetchone()
             potion_type_id = r[1]
             quantity = r[2]
-            print("quantity is " + str(quantity))
             potion_name = connection.execute(sqlalchemy.text("SELECT name FROM mypotiontypes WHERE id = :potion_type_id"), [{"potion_type_id": potion_type_id}])
             
             potion_name = potion_name.fetchone()[0]

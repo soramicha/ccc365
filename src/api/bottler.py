@@ -72,7 +72,7 @@ def get_bottle_plan():
             potioncount = connection.execute(sqlalchemy.text("SELECT potion_history FROM global_inventory"))
             potionhistory = potioncount.fetchone()[0]
             # purple potion
-            if ml[1][0] >= 50 and ml[2][0] >= 50 and (potionhistory + 1) % 4 == 3:
+            if ml[1][0] >= 50 and ml[2][0] >= 50 and (potionhistory + 1) % 4 == 2:
                 connection.execute(sqlalchemy.text("UPDATE global_inventory SET potion_history = potion_history + 1"))
                 connection.execute(sqlalchemy.text("UPDATE mypotiontypes SET potions = potions + 1 WHERE name = 'burple'"))
                 purplergbd = connection.execute(sqlalchemy.text("SELECT red, green, blue, dark FROM mypotiontypes WHERE name = 'burple'"))
@@ -83,7 +83,7 @@ def get_bottle_plan():
                             "quantity": 1,
                         }
                     ]
-            elif ml[2][0] >= 100 and (potionhistory + 1) % 4 == 2:
+            elif ml[2][0] >= 100 and (potionhistory + 1) % 4 == 1:
                 connection.execute(sqlalchemy.text("UPDATE global_inventory SET potion_history = potion_history + 1"))
                 connection.execute(sqlalchemy.text("UPDATE mypotiontypes SET potions = potions + 1 WHERE name = 'bluey_mooey'"))
                 bluergbd = connection.execute(sqlalchemy.text("SELECT red, green, blue, dark FROM mypotiontypes WHERE name = 'bluey_mooey'"))
@@ -95,7 +95,7 @@ def get_bottle_plan():
                         }
                     ]
             
-            elif ml[1][0] >= 100 and (potionhistory + 1) % 4 == 1:
+            elif ml[1][0] >= 100 and (potionhistory + 1) % 4 == 0:
                 connection.execute(sqlalchemy.text("UPDATE global_inventory SET potion_history = potion_history + 1"))
                 connection.execute(sqlalchemy.text("UPDATE mypotiontypes SET potions = potions + 1 WHERE name = 'RARA_RED'"))
                 redrgbd = connection.execute(sqlalchemy.text("SELECT red, green, blue, dark FROM mypotiontypes WHERE name = 'RARA_RED'"))
@@ -107,7 +107,7 @@ def get_bottle_plan():
                     }
                 ]
             
-            elif ml[0][0] >= 100 and (potionhistory + 1) % 4 == 4:
+            elif ml[0][0] >= 100 and (potionhistory + 1) % 4 == 3:
                 connection.execute(sqlalchemy.text("UPDATE global_inventory SET potion_history = potion_history + 1"))    
                 connection.execute(sqlalchemy.text("UPDATE mypotiontypes SET potions = potions + 1 WHERE name = 'GOOGOOGREEN'"))
                 greenrgbd = connection.execute(sqlalchemy.text("SELECT red, green, blue, dark FROM mypotiontypes WHERE name = 'GOOGOOGREEN'"))
@@ -118,7 +118,6 @@ def get_bottle_plan():
                             "quantity": 1,
                         }
                     ]
-            connection.execute(sqlalchemy.text("UPDATE global_inventory SET potion_history = potion_history + 1"))
             return []
 
 if __name__ == "__main__":

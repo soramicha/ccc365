@@ -97,7 +97,7 @@ def create_cart(new_cart: Customer):
         except IntegrityError:
             return "INTEGRITY ERROR!"
         else:
-            cart_id = connection.execute(sqlalchemy.text("SELECT cart_id FROM carts WHERE customer_name = :name"), [{"name": new_cart.customer_name}])
+            cart_id = connection.execute(sqlalchemy.text("SELECT cart_id FROM carts WHERE customer_name = :name ORDER BY cart_id DESC LIMIT 1"), [{"name": new_cart.customer_name}])
     return {"cart_id": cart_id.fetchone()[0]}
 
 
@@ -123,30 +123,23 @@ class CartCheckout(BaseModel):
 def checkout(cart_id: int, cart_checkout: CartCheckout):
     with db.engine.begin() as connection:
         try:
-            cart_checkout = int(cart_checkout.payment)
-            row1 = connection.execute(sqlalchemy.text("SELECT * FROM cart_items WHERE customer_cart_id = :cart_id"), [{"cart_id": cart_id}])
+            # get the potion_type_id and quantity from cart_items table using the cart_id
+            # retrieve the price of the potion from the mypotiontypes table
+            row1 = connection.execute(sqlalchemy.text("SELECT potion_type_id, quantity FROM cart_items WHERE customer_cart_id = :cart_id"), [{"cart_id": cart_id}])
             r = row1.fetchone()
-            potion_type_id = r[1]
-            quantity = r[2]
-            potion_name = connection.execute(sqlalchemy.text("SELECT name FROM mypotiontypes WHERE id = :potion_type_id"), [{"potion_type_id": potion_type_id}])
+            potion_type_id = r[0]
+            quantity = r[1]
+            potion_name = connection.execute(sqlalchemy.text("SELECT name, cost FROM mypotiontypes WHERE id = :potion_type_id"), [{"potion_type_id": potion_type_id}])
             
-            potion_name = potion_name.fetchone()[0]
+            p = potion_name.fetchone()
+            potion_name = p[0]
+            cost = p[1]
             # purchasing one bottle at a time
-            if potion_name == "GOOGOOGREEN":
-                connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_green_potions = num_green_potions - :potions, gold = gold + 45 * :potions"), [{"potions": quantity}])
-                totalgold = 40 * quantity
-            elif potion_name == "RARA_RED":
-                connection.execute(sqlalchemy.text("UPDATE global_inventory SET red_potions = red_potions - :potions, gold = gold + 50 * :potions"), [{"potions": quantity}])
-                totalgold = 50 * quantity
-            elif potion_name == "bluey_mooey":
-                connection.execute(sqlalchemy.text("UPDATE global_inventory SET blue_potions = blue_potions - :potions, gold = gold + 65 * :potions"), [{"potions": quantity}])
-                totalgold = 65 * quantity
-            elif potion_name == "burple":
-                connection.execute(sqlalchemy.text("UPDATE global_inventory SET purple_potions = purple_potions - :potions, gold = gold + 75 * :potions"), [{"potions": quantity}])
-                totalgold = 75 * quantity
+            connection.execute(sqlalchemy.text("UPDATE mypotiontypes SET potions = potions - :potions WHERE id = :potion_type_id"), [{"potion_type_id": potion_type_id, "potions": quantity}])
+            connection.execute(sqlalchemy.text("UPDATE global_inventory SET gold = gold + :cost"), [{"cost": cost}])
+            totalgold = cost * quantity
         except IntegrityError:
             return "INTEGRITY ERROR!"
         else:
-            connection.execute(sqlalchemy.text("DELETE FROM cart_items WHERE customer_cart_id = :cart_id"), [{"cart_id": cart_id}])
-            connection.execute(sqlalchemy.text("DELETE FROM carts WHERE cart_id = :cart_id"), [{"cart_id": cart_id}])
+            connection.execute(sqlalchemy.text("UPDATE global_inventory SET potions_total = potions_total - :quantity"), [{"quantity": quantity}])
         return {"total_potions_bought": quantity, "total_gold_paid": totalgold}

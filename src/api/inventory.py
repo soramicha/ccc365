@@ -17,17 +17,12 @@ def get_inventory():
     # query in the actual data
     try:
         with db.engine.begin() as connection:
-            potions = connection.execute(sqlalchemy.text("SELECT num_green_potions, red_potions, purple_potions, blue_potions FROM global_inventory"))
-            ml = connection.execute(sqlalchemy.text("SELECT num_green_ml, red_ml, blue_ml FROM global_inventory"))
+            all = connection.execute(sqlalchemy.text("SELECT SUM(ml), SUM(potions) FROM mypotiontypes"))
             gold = connection.execute(sqlalchemy.text("SELECT gold FROM global_inventory"))
-        x = potions.fetchone()
-        potions_total = x[0] + x[1] + x[2] + x[3]
-        y = ml.fetchone()
-        ml_total = y[0] + y[1] + y[2]
-        gold_total = gold.fetchone()
+        x = all.fetchone()
     except IntegrityError:
         return "INTEGRITY ERROR!"
-    return {"number_of_potions": potions_total, "ml_in_barrels": ml_total, "gold": gold_total[0]}
+    return {"number_of_potions": x[0], "ml_in_barrels": x[1], "gold": gold.fetchone()[0]}
 
 
 # Gets called once a day

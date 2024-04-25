@@ -35,14 +35,17 @@ def post_deliver_bottles(potions_delivered: list[PotionInventory], order_id: int
             return "INTEGRITY ERROR!"
         else:
             if potions_delivered[0].potion_type == [green[0], green[1], green[2], green[3]]: # if it's green
-                    connection.execute(sqlalchemy.text("UPDATE global_inventory SET num_green_potions = num_green_potions + :potions, num_green_ml = num_green_ml - (100 * :potions)"), [{"potions": potions_delivered[0].quantity}])
+                    connection.execute(sqlalchemy.text("UPDATE mypotiontypes SET potions = potions + :potions, ml = ml - (100 * :potions) WHERE name = 'GOOGOOGREEN'"), [{"potions": potions_delivered[0].quantity}])
             if potions_delivered[0].potion_type == [red[0], red[1], red[2], red[3]]: # if it's red
-                connection.execute(sqlalchemy.text("UPDATE global_inventory SET red_potions = red_potions + :potions, red_ml = red_ml - (100 * :potions)"), [{"potions": potions_delivered[0].quantity}])
+                connection.execute(sqlalchemy.text("UPDATE mypotiontypes SET potions = potions + :potions, ml = ml - (100 * :potions) WHERE name = 'RARA_RED'"), [{"potions": potions_delivered[0].quantity}])
             if potions_delivered[0].potion_type == [blue[0], blue[1], blue[2], blue[3]]: # if it's blue
-                connection.execute(sqlalchemy.text("UPDATE global_inventory SET blue_potions = blue_potions + :potions, blue_ml = blue_ml - (100 * :potions)"), [{"potions": potions_delivered[0].quantity}])
+                connection.execute(sqlalchemy.text("UPDATE mypotiontypes SET potions = potions + :potions, ml = ml - (100 * :potions) WHERE name = 'bluey_mooey'"), [{"potions": potions_delivered[0].quantity}])
             if potions_delivered[0].potion_type == [purple[0], purple[1], purple[2], purple[3]]: # if it's purple
-                connection.execute(sqlalchemy.text("UPDATE global_inventory SET purple_potions = purple_potions + :potions, red_ml = red_ml - (50 * :potions), blue_ml = blue_ml - (50 * :potions)"), [{"potions": potions_delivered[0].quantity}])
-    
+                connection.execute(sqlalchemy.text("UPDATE mypotiontypes SET potions = potions + :potions, ml = ml - (50 * :potions) WHERE name = 'bluey_mooey'"), [{"potions": potions_delivered[0].quantity}])
+                connection.execute(sqlalchemy.text("UPDATE mypotiontypes SET potions = potions + :potions, ml = ml - (50 * :potions) WHERE name = 'RARA_RED'"), [{"potions": potions_delivered[0].quantity}])
+            # update global inventory
+            connection.execute(sqlalchemy.text("UPDATE global_inventory SET potions_total = potions_total + :quantity"), [{"quantity": potions_delivered[0].quantity}])
+            connection.execute(sqlalchemy.text("UPDATE global_inventory SET ml_total = ml_total - (:quantity * 100)"), [{"quantity": potions_delivered[0].quantity}])
     print(f"potions delivered: {potions_delivered} order_id: {order_id}")
 
     return "OK"
@@ -57,24 +60,21 @@ def get_bottle_plan():
     
     with db.engine.begin() as connection:
         try:
-            green = connection.execute(sqlalchemy.text("SELECT num_green_ml FROM global_inventory"))
-            red = connection.execute(sqlalchemy.text("SELECT red_ml FROM global_inventory"))
-            blue = connection.execute(sqlalchemy.text("SELECT blue_ml FROM global_inventory"))
+            ml = connection.execute(sqlalchemy.text("SELECT ml FROM mypotiontypes ORDER BY id ASC"))
         except IntegrityError:
             return "INTEGRITY ERROR!"
         else:
             # Each bottle has a quantity of what proportion of red, blue, and green potion to add.
             # Expressed in integers from 1 to 100 that must sum up to 100.
 
-            numblue = blue.fetchone()[0]
-            numred = red.fetchone()[0]
-            numgreen = green.fetchone()[0]
+            ml = ml.fetchall()
             
             potioncount = connection.execute(sqlalchemy.text("SELECT potion_history FROM global_inventory"))
             potionhistory = potioncount.fetchone()[0]
             # purple potion
-            if numblue >= 50 and numred >= 50 and (potionhistory + 1) % 4 == 3:
+            if ml[1][0] >= 50 and ml[2][0] >= 50 and (potionhistory + 1) % 4 == 3:
                 connection.execute(sqlalchemy.text("UPDATE global_inventory SET potion_history = potion_history + 1"))
+                connection.execute(sqlalchemy.text("UPDATE mypotiontypes SET potions = potions + 1 WHERE name = 'burple'"))
                 purplergbd = connection.execute(sqlalchemy.text("SELECT red, green, blue, dark FROM mypotiontypes WHERE name = 'burple'"))
                 rgbd = purplergbd.fetchone()
                 return [
@@ -83,8 +83,9 @@ def get_bottle_plan():
                             "quantity": 1,
                         }
                     ]
-            elif numblue >= 100 and (potionhistory + 1) % 4 == 2:
+            elif ml[2][0] >= 100 and (potionhistory + 1) % 4 == 2:
                 connection.execute(sqlalchemy.text("UPDATE global_inventory SET potion_history = potion_history + 1"))
+                connection.execute(sqlalchemy.text("UPDATE mypotiontypes SET potions = potions + 1 WHERE name = 'bluey_mooey'"))
                 bluergbd = connection.execute(sqlalchemy.text("SELECT red, green, blue, dark FROM mypotiontypes WHERE name = 'bluey_mooey'"))
                 rgbd = bluergbd.fetchone()
                 return [
@@ -94,8 +95,9 @@ def get_bottle_plan():
                         }
                     ]
             
-            elif numred >= 100 and (potionhistory + 1) % 4 == 1:
+            elif ml[1][0] >= 100 and (potionhistory + 1) % 4 == 1:
                 connection.execute(sqlalchemy.text("UPDATE global_inventory SET potion_history = potion_history + 1"))
+                connection.execute(sqlalchemy.text("UPDATE mypotiontypes SET potions = potions + 1 WHERE name = 'RARA_RED'"))
                 redrgbd = connection.execute(sqlalchemy.text("SELECT red, green, blue, dark FROM mypotiontypes WHERE name = 'RARA_RED'"))
                 rgbd = redrgbd.fetchone()
                 return [
@@ -105,8 +107,9 @@ def get_bottle_plan():
                     }
                 ]
             
-            elif numgreen >= 100 and (potionhistory + 1) % 4 == 4:
-                connection.execute(sqlalchemy.text("UPDATE global_inventory SET potion_history = potion_history + 1"))     
+            elif ml[0][0] >= 100 and (potionhistory + 1) % 4 == 4:
+                connection.execute(sqlalchemy.text("UPDATE global_inventory SET potion_history = potion_history + 1"))    
+                connection.execute(sqlalchemy.text("UPDATE mypotiontypes SET potions = potions + 1 WHERE name = 'GOOGOOGREEN'"))
                 greenrgbd = connection.execute(sqlalchemy.text("SELECT red, green, blue, dark FROM mypotiontypes WHERE name = 'GOOGOOGREEN'"))
                 rgbd = greenrgbd.fetchone()
                 return [

@@ -22,7 +22,7 @@ def get_inventory():
         x = all.fetchone()
     except IntegrityError:
         return "INTEGRITY ERROR!"
-    return {"number_of_potions": x[0], "ml_in_barrels": x[1], "gold": gold.fetchone()[0]}
+    return {"number_of_potions": x[1], "ml_in_barrels": x[0], "gold": gold.fetchone()[0]}
 
 
 # Gets called once a day

@@ -26,16 +26,22 @@ def post_deliver_barrels(barrels_delivered: list[Barrel], order_id: int):
     
     with db.engine.begin() as connection:
         try:
+            # no need for potion keep track in mypotiontypes
             if barrels_delivered[0].sku == "SMALL_BLUE_BARREL" or barrels_delivered[0].sku == "MINI_BLUE_BARREL":
+                #connection.execute(sqlalchemy.text("INSERT INTO ledger (gold, potions, ml, potion_type) VALUES (-:gold, 0, :ml, 3)"), [{"gold": barrels_delivered[0].price, "ml": barrels_delivered[0].ml_per_barrel}])
                 connection.execute(sqlalchemy.text("UPDATE global_inventory SET gold = gold - :gold"), [{"gold": barrels_delivered[0].price}])
                 connection.execute(sqlalchemy.text("UPDATE mypotiontypes SET ml = ml + :ml WHERE name = 'bluey_mooey'"), [{"ml": barrels_delivered[0].ml_per_barrel}])
             if barrels_delivered[0].sku == "SMALL_RED_BARREL" or barrels_delivered[0].sku == "MINI_RED_BARREL":
+                #connection.execute(sqlalchemy.text("INSERT INTO ledger (gold, potions, ml) VALUES (-:gold, 0, :ml, 2)"), [{"gold": barrels_delivered[0].price, "ml": barrels_delivered[0].ml_per_barrel}])
                 connection.execute(sqlalchemy.text("UPDATE global_inventory SET gold = gold - :gold"), [{"gold": barrels_delivered[0].price}])
                 connection.execute(sqlalchemy.text("UPDATE mypotiontypes SET ml = ml + :ml WHERE name = 'RARA_RED'"), [{"ml": barrels_delivered[0].ml_per_barrel}])
             if barrels_delivered[0].sku == "SMALL_GREEN_BARREL" or barrels_delivered[0].sku == "MINI_GREEN_BARREL":
+                #connection.execute(sqlalchemy.text("INSERT INTO ledger (gold, potions, ml) VALUES (-:gold, 0, :ml, 1)"), [{"gold": barrels_delivered[0].price, "ml": barrels_delivered[0].ml_per_barrel}])
                 connection.execute(sqlalchemy.text("UPDATE global_inventory SET gold = gold - :gold"), [{"gold": barrels_delivered[0].price}])
                 connection.execute(sqlalchemy.text("UPDATE mypotiontypes SET ml = ml + :ml WHERE name = 'GOOGOOGREEN'"), [{"ml": barrels_delivered[0].ml_per_barrel}])
-            connection.execute(sqlalchemy.text("UPDATE global_inventory SET ml_total = ml_total + :quantity"), [{"quantity": barrels_delivered[0].ml_per_barrel}])
+            #total = connection.execute(sqlalchemy.text("SELECT SUM(ml) FROM ledger")) 
+            #connection.execute(sqlalchemy.text("UPDATE global_inventory SET ml_total = :quantity"), [{"quantity": total.fetchone()[0]}])
+            connection.execute(sqlalchemy.text("UPDATE global_inventory SET ml_total = :quantity"), [{"quantity": barrels_delivered[0].ml_per_barrel}])
         except IntegrityError:
             return "INTEGRITY ERROR!"
     

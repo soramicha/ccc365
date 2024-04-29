@@ -77,44 +77,47 @@ def get_bottle_plan():
             potioncount = connection.execute(sqlalchemy.text("SELECT potion_history FROM global_inventory"))
             potionhistory = potioncount.fetchone()[0]
             # purple potion
-            if ml_blue[0] is not None and ml_red[0] is not None and ml_blue[0] >= 50 and ml_red[0] >= 50 or (potionhistory % 4 == 2 and ml_red[0] >= 50 and ml_blue[0] >= 50):
-                purplergbd = connection.execute(sqlalchemy.text("SELECT red, green, blue, dark FROM mypotiontypes WHERE name = 'burple'"))
-                rgbd = purplergbd.fetchone()
-                return [
+            if ml_blue[0]:
+                if ml_red[0]:
+                    if ml_blue[0] >= 50 and ml_red[0] >= 50 or (potionhistory % 4 == 2 and ml_red[0] >= 50 and ml_blue[0] >= 50):
+                        purplergbd = connection.execute(sqlalchemy.text("SELECT red, green, blue, dark FROM mypotiontypes WHERE name = 'burple'"))
+                        rgbd = purplergbd.fetchone()
+                        return [
+                                {
+                                    "potion_type": [rgbd[0], rgbd[1], rgbd[2], rgbd[3]],
+                                    "quantity": 1,
+                                }
+                            ]
+            elif ml_blue[0]:
+                if ml_blue[0] >= 100 or (potionhistory % 4 == 1 and ml_blue[0] >= 100):
+                    bluergbd = connection.execute(sqlalchemy.text("SELECT red, green, blue, dark FROM mypotiontypes WHERE name = 'bluey_mooey'"))
+                    rgbd = bluergbd.fetchone()
+                    return [
+                            {
+                                "potion_type": [rgbd[0], rgbd[1], rgbd[2], rgbd[3]],
+                                "quantity": 1,
+                            }
+                        ]
+            elif ml_red[0]:
+                if ml_red[0] >= 100 or (potionhistory % 4 == 0 and ml_red[0] >= 100):
+                    redrgbd = connection.execute(sqlalchemy.text("SELECT red, green, blue, dark FROM mypotiontypes WHERE name = 'RARA_RED'"))
+                    rgbd = redrgbd.fetchone()
+                    return [
                         {
                             "potion_type": [rgbd[0], rgbd[1], rgbd[2], rgbd[3]],
                             "quantity": 1,
                         }
                     ]
-            elif ml_blue[0] is not None and ml_blue[0] >= 100 or (potionhistory % 4 == 1 and ml_blue[0] >= 100):
-                bluergbd = connection.execute(sqlalchemy.text("SELECT red, green, blue, dark FROM mypotiontypes WHERE name = 'bluey_mooey'"))
-                rgbd = bluergbd.fetchone()
-                return [
-                        {
-                            "potion_type": [rgbd[0], rgbd[1], rgbd[2], rgbd[3]],
-                            "quantity": 1,
-                        }
-                    ]
-            
-            elif ml_red[0] is not None and ml_red[0] >= 100 or (potionhistory % 4 == 0 and ml_red[0] >= 100):
-                redrgbd = connection.execute(sqlalchemy.text("SELECT red, green, blue, dark FROM mypotiontypes WHERE name = 'RARA_RED'"))
-                rgbd = redrgbd.fetchone()
-                return [
-                    {
-                        "potion_type": [rgbd[0], rgbd[1], rgbd[2], rgbd[3]],
-                        "quantity": 1,
-                    }
-                ]
-            
-            elif ml_green[0] is not None and ml_green[0] >= 100 or (potionhistory % 4 == 3 and ml_green[0] >= 100):
-                greenrgbd = connection.execute(sqlalchemy.text("SELECT red, green, blue, dark FROM mypotiontypes WHERE name = 'GOOGOOGREEN'"))
-                rgbd = greenrgbd.fetchone()
-                return [
-                        {
-                            "potion_type": [rgbd[0], rgbd[1], rgbd[2], rgbd[3]],
-                            "quantity": 1,
-                        }
-                    ]
+            elif ml_green[0]:
+                if ml_green[0] >= 100 or (potionhistory % 4 == 3 and ml_green[0] >= 100):
+                    greenrgbd = connection.execute(sqlalchemy.text("SELECT red, green, blue, dark FROM mypotiontypes WHERE name = 'GOOGOOGREEN'"))
+                    rgbd = greenrgbd.fetchone()
+                    return [
+                            {
+                                "potion_type": [rgbd[0], rgbd[1], rgbd[2], rgbd[3]],
+                                "quantity": 1,
+                            }
+                        ]
             return []
 
 if __name__ == "__main__":

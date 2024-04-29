@@ -49,30 +49,32 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
     with db.engine.begin() as connection:
         try:
             count = connection.execute(sqlalchemy.text("SELECT barrel_history FROM global_inventory"))
+            gold = connection.execute(sqlalchemy.text("SELECT SUM(gold) FROM ledger"))
+            gold = gold.fetchone()[0]
         except IntegrityError:
             return "INTEGRITY ERROR!"
         else:
             count = count.fetchone()[0]
-            print(f"catalog at count {count} with modulo {(count + 1) % 3}")
+            print(f"catalog at count {count} with modulo {count % 3}")
             
-            if count % 3 == 0:
+            if count % 3 == 0 and gold >= 100:
                 return [
                     {
-                        "sku": "MINI_BLUE_BARREL",
+                        "sku": "SMALL_BLUE_BARREL",
                         "quantity": 1,
                     }
                 ]
-            elif count % 3 == 1:
+            elif count % 3 == 1 and gold >= 100:
                 return [
                         {
-                            "sku": "MINI_RED_BARREL",
+                            "sku": "SMALL_RED_BARREL",
                             "quantity": 1,
                         }
                     ]
-            elif count % 3 == 2:
+            elif count % 3 == 2 and gold >= 100:
                 return [
                     {
-                        "sku": "MINI_GREEN_BARREL",
+                        "sku": "SMALL_GREEN_BARREL",
                         "quantity": 1,
                     }
                 ]

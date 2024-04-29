@@ -28,20 +28,12 @@ def post_deliver_barrels(barrels_delivered: list[Barrel], order_id: int):
         try:
             # no need for potion keep track in mypotiontypes
             if barrels_delivered[0].sku == "SMALL_BLUE_BARREL" or barrels_delivered[0].sku == "MINI_BLUE_BARREL":
-                #connection.execute(sqlalchemy.text("INSERT INTO ledger (gold, potions, ml, potion_type) VALUES (-:gold, 0, :ml, 3)"), [{"gold": barrels_delivered[0].price, "ml": barrels_delivered[0].ml_per_barrel}])
-                connection.execute(sqlalchemy.text("UPDATE global_inventory SET gold = gold - :gold"), [{"gold": barrels_delivered[0].price}])
-                connection.execute(sqlalchemy.text("UPDATE mypotiontypes SET ml = ml + :ml WHERE name = 'bluey_mooey'"), [{"ml": barrels_delivered[0].ml_per_barrel}])
+                connection.execute(sqlalchemy.text("INSERT INTO ledger (gold, potions, ml, potion_type, description) VALUES (-:gold, 0, :ml, 3, 'purchased mini blue barrel')"), [{"gold": barrels_delivered[0].price, "ml": barrels_delivered[0].ml_per_barrel}])
             if barrels_delivered[0].sku == "SMALL_RED_BARREL" or barrels_delivered[0].sku == "MINI_RED_BARREL":
-                #connection.execute(sqlalchemy.text("INSERT INTO ledger (gold, potions, ml) VALUES (-:gold, 0, :ml, 2)"), [{"gold": barrels_delivered[0].price, "ml": barrels_delivered[0].ml_per_barrel}])
-                connection.execute(sqlalchemy.text("UPDATE global_inventory SET gold = gold - :gold"), [{"gold": barrels_delivered[0].price}])
-                connection.execute(sqlalchemy.text("UPDATE mypotiontypes SET ml = ml + :ml WHERE name = 'RARA_RED'"), [{"ml": barrels_delivered[0].ml_per_barrel}])
+                connection.execute(sqlalchemy.text("INSERT INTO ledger (gold, potions, ml, potion_type, description) VALUES (-:gold, 0, :ml, 2, 'purchased mini red barrel')"), [{"gold": barrels_delivered[0].price, "ml": barrels_delivered[0].ml_per_barrel}])
             if barrels_delivered[0].sku == "SMALL_GREEN_BARREL" or barrels_delivered[0].sku == "MINI_GREEN_BARREL":
-                #connection.execute(sqlalchemy.text("INSERT INTO ledger (gold, potions, ml) VALUES (-:gold, 0, :ml, 1)"), [{"gold": barrels_delivered[0].price, "ml": barrels_delivered[0].ml_per_barrel}])
-                connection.execute(sqlalchemy.text("UPDATE global_inventory SET gold = gold - :gold"), [{"gold": barrels_delivered[0].price}])
-                connection.execute(sqlalchemy.text("UPDATE mypotiontypes SET ml = ml + :ml WHERE name = 'GOOGOOGREEN'"), [{"ml": barrels_delivered[0].ml_per_barrel}])
-            #total = connection.execute(sqlalchemy.text("SELECT SUM(ml) FROM ledger")) 
-            #connection.execute(sqlalchemy.text("UPDATE global_inventory SET ml_total = :quantity"), [{"quantity": total.fetchone()[0]}])
-            connection.execute(sqlalchemy.text("UPDATE global_inventory SET ml_total = :quantity"), [{"quantity": barrels_delivered[0].ml_per_barrel}])
+                connection.execute(sqlalchemy.text("INSERT INTO ledger (gold, potions, ml, potion_type, description) VALUES (-:gold, 0, :ml, 1, 'purchased mini green barrel')"), [{"gold": barrels_delivered[0].price, "ml": barrels_delivered[0].ml_per_barrel}])
+            connection.execute(sqlalchemy.text("UPDATE global_inventory SET barrel_history = barrel_history + 1"))
         except IntegrityError:
             return "INTEGRITY ERROR!"
     
@@ -63,7 +55,6 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
             count = count.fetchone()[0]
             
             if (count + 1) % 3 == 0:
-                connection.execute(sqlalchemy.text("UPDATE global_inventory SET barrel_history = barrel_history + 1"))
                 return [
                     {
                         "sku": "MINI_BLUE_BARREL",
@@ -71,7 +62,6 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                     }
                 ]
             elif (count + 1) % 3 == 1:
-                connection.execute(sqlalchemy.text("UPDATE global_inventory SET barrel_history = barrel_history + 1"))
                 return [
                         {
                             "sku": "MINI_RED_BARREL",
@@ -79,7 +69,6 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
                         }
                     ]
             elif (count + 1) % 3 == 2:
-                connection.execute(sqlalchemy.text("UPDATE global_inventory SET barrel_history = barrel_history + 1"))
                 return [
                     {
                         "sku": "MINI_GREEN_BARREL",

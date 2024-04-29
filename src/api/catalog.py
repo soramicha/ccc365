@@ -9,10 +9,15 @@ router = APIRouter()
 def get_catalog():
     try:
         with db.engine.begin() as connection:
-            red = connection.execute(sqlalchemy.text("SELECT potions, name, cost, red, green, blue, dark FROM mypotiontypes WHERE name = 'RARA_RED'"))
-            blue = connection.execute(sqlalchemy.text("SELECT potions, name, cost, red, green, blue, dark FROM mypotiontypes WHERE name = 'bluey_mooey'"))    
-            green = connection.execute(sqlalchemy.text("SELECT potions, name, cost, red, green, blue, dark FROM mypotiontypes WHERE name = 'GOOGOOGREEN'"))
-            purple = connection.execute(sqlalchemy.text("SELECT potions, name, cost, red, green, blue, dark FROM mypotiontypes WHERE name = 'burple'"))
+            red = connection.execute(sqlalchemy.text("SELECT id, name, cost, red, green, blue, dark FROM mypotiontypes WHERE name = 'RARA_RED'"))
+            blue = connection.execute(sqlalchemy.text("SELECT id, name, cost, red, green, blue, dark FROM mypotiontypes WHERE name = 'bluey_mooey'"))    
+            green = connection.execute(sqlalchemy.text("SELECT id, name, cost, red, green, blue, dark FROM mypotiontypes WHERE name = 'GOOGOOGREEN'"))
+            purple = connection.execute(sqlalchemy.text("SELECT id, name, cost, red, green, blue, dark FROM mypotiontypes WHERE name = 'burple'"))
+            green_p = connection.execute(sqlalchemy.text("SELECT SUM(potions) FROM ledger WHERE potion_type = 1"))
+            red_p = connection.execute(sqlalchemy.text("SELECT SUM(potions) FROM ledger WHERE potion_type = 2"))
+            blue_p = connection.execute(sqlalchemy.text("SELECT SUM(potions) FROM ledger WHERE potion_type = 3"))
+            purple_p = connection.execute(sqlalchemy.text("SELECT SUM(potions) FROM ledger WHERE potion_type = 4"))
+            
     except IntegrityError:
         return "INTEGRITY ERROR!"
     """
@@ -22,7 +27,8 @@ def get_catalog():
     # change this
     mylist = []
     blue = blue.fetchone()
-    if blue[0] > 0:
+    blue_p = blue_p.fetchone()[0]
+    if  blue_p is not None and blue_p > 0:
         mylist.append({
                     "sku": blue[1],
                     "name": blue[1],
@@ -32,7 +38,8 @@ def get_catalog():
                 }
             )
     red = red.fetchone()
-    if red[0] > 0:
+    red_p = red_p.fetchone()[0]
+    if  red_p is not None and red_p > 0:
         mylist.append(
                 {
                     "sku": red[1],
@@ -43,7 +50,8 @@ def get_catalog():
                 }
         )
     green = green.fetchone()
-    if green[0] > 0:
+    green_p = green_p.fetchone()[0]
+    if green_p is not None and green_p > 0:
         mylist.append(
                 {
                     "sku": green[1],
@@ -53,8 +61,9 @@ def get_catalog():
                     "potion_type": [green[3], green[4], green[5], green[6]],
                 }
         )
-    purple= purple.fetchone()
-    if purple[0] > 0:
+    purple = purple.fetchone()
+    purple_p = purple_p.fetchone()[0]
+    if  purple_p is not None and purple_p > 0:
         mylist.append(
                 {
                     "sku": purple[1],

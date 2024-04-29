@@ -17,12 +17,11 @@ def get_inventory():
     # query in the actual data
     try:
         with db.engine.begin() as connection:
-            all = connection.execute(sqlalchemy.text("SELECT SUM(ml), SUM(potions) FROM mypotiontypes"))
-            gold = connection.execute(sqlalchemy.text("SELECT gold FROM global_inventory"))
+            all = connection.execute(sqlalchemy.text("SELECT SUM(gold), SUM(ml), SUM(potions) FROM ledger"))
         x = all.fetchone()
     except IntegrityError:
         return "INTEGRITY ERROR!"
-    return {"number_of_potions": x[1], "ml_in_barrels": x[0], "gold": gold.fetchone()[0]}
+    return {"number_of_potions": x[2], "ml_in_barrels": x[1], "gold": x[0]}
 
 
 # Gets called once a day
@@ -35,7 +34,7 @@ def get_capacity_plan():
     
     try:
         with db.engine.begin() as connection:
-            gold = connection.execute(sqlalchemy.text("SELECT gold FROM global_inventory"))
+            gold = connection.execute(sqlalchemy.text("SELECT SUM(gold) FROM ledger"))
             
         if gold.fetchone()[0] >= 1500:
             return {
@@ -63,7 +62,7 @@ def deliver_capacity_plan(capacity_purchase : CapacityPurchase, order_id: int):
     try:
         with db.engine.begin() as connection:
             total = 1000 * (capacity_purchase.potion_capacity + capacity_purchase.ml_capacity)
-            connection.execute(sqlalchemy.text("UPDATE global_inventory SET gold = gold - 1000 * :total"), [{"total": total}])
+            connection.execute(sqlalchemy.text("INSERT INTO ledger (gold, description) VALUES (-1000 * :total, 'purchased capacity plan')"), [{"total": total}])
     except IntegrityError:
         return "INTEGRITY ERROR!"
     return "Successfully delivered capacity plan"

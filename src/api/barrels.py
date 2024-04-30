@@ -57,14 +57,14 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
             count = count.fetchone()[0]
             print(f"catalog at count {count} with modulo {count % 3}")
             
-            if count % 3 == 0 and gold >= 100:
+            if count % 3 == 1 and gold >= 100:
                 return [
                     {
                         "sku": "MINI_BLUE_BARREL",
                         "quantity": 1,
                     }
                 ]
-            elif count % 3 == 1 and gold >= 100:
+            elif count % 3 == 0 and gold >= 100:
                 return [
                         {
                             "sku": "MINI_RED_BARREL",

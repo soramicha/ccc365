@@ -31,8 +31,11 @@ def search_orders(
     sort_order: search_sort_order = search_sort_order.desc,
 ):
     
+    result = []
     with db.engine.begin() as connection:
-        result = connection.execute(sqlalchemy.text("SELECT * FROM global_inventory"))
+        # get the starting id in cart_items
+        rows = connection.execute(sqlalchemy.text("SELECT customer, potion_id, gold, time FROM search_orders ORDER BY :customer_name"), [{"customer_name": customer_name}])
+        result.append(rows.fetchall())
         
     """
     Search for cart line items by customer name and/or potion sku.
@@ -62,15 +65,7 @@ def search_orders(
     return {
         "previous": "",
         "next": "",
-        "results": [
-            {
-                "line_item_id": 1,
-                "item_sku": "1 oblivion potion",
-                "customer_name": "Scaramouche",
-                "line_item_total": 50,
-                "timestamp": "2021-01-01T00:00:00Z",
-            }
-        ],
+        "results": result,
     }
 
 
@@ -135,7 +130,9 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
             potion_name = p[0]
             cost = p[1]
             # purchasing one bottle at a time
-            connection.execute(sqlalchemy.text("INSERT INTO ledger (gold, potions, ml, potion_type, description) VALUES (:cost, -:potions, 0, :potion_type_id, 'sold potion')"), [{"cost": cost, "potion_type_id": potion_type_id, "potions": quantity}])
+            connection.execute(sqlalchemy.text("INSERT INTO ledger (gold, potions, ml, potion_type, description, cart_id) VALUES (:cost, -:potions, 0, :potion_type_id, 'sold potion', :cart_id)"), [{"cost": cost, "potion_type_id": potion_type_id, "potions": quantity, "cart_id": cart_id}])
+            name = connection.execute(sqlalchemy.text("SELECT customer_name FROM carts WHERE cart_id = :id"), [{"id": cart_id}])
+            connection.execute(sqlalchemy.text("INSERT INTO search_orders (customer, potion_id, gold, cart_id) VALUES (:name ,:potion_type_id, :cost, :cart_id)"), [{"name": name.fetchone()[0], "cost": cost, "potion_type_id": potion_type_id, "cart_id": cart_id}])
             connection.execute(sqlalchemy.text("UPDATE cart_items SET status = 'successful' WHERE customer_cart_id = :cart_id"), [{"cart_id": cart_id}])
             totalgold = cost * quantity
         except IntegrityError:

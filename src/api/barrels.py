@@ -60,21 +60,21 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
             if count % 3 == 1 and gold >= 100:
                 return [
                     {
-                        "sku": "MINI_BLUE_BARREL",
+                        "sku": "SMALL_BLUE_BARREL",
                         "quantity": 1,
                     }
                 ]
             elif count % 3 == 0 and gold >= 100:
                 return [
                         {
-                            "sku": "MINI_RED_BARREL",
+                            "sku": "SMALL_RED_BARREL",
                             "quantity": 1,
                         }
                     ]
             elif count % 3 == 2 and gold >= 100:
                 return [
                     {
-                        "sku": "MINI_GREEN_BARREL",
+                        "sku": "SMALL_GREEN_BARREL",
                         "quantity": 1,
                     }
                 ]

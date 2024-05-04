@@ -4,7 +4,7 @@ import sqlalchemy
 from src import database as db
 
 router = APIRouter()
-
+# added yeeLOW information
 @router.get("/catalog/", tags=["catalog"])
 def get_catalog():
     try:
@@ -13,11 +13,12 @@ def get_catalog():
             blue = connection.execute(sqlalchemy.text("SELECT id, name, cost, red, green, blue, dark FROM mypotiontypes WHERE name = 'bluey_mooey'"))    
             green = connection.execute(sqlalchemy.text("SELECT id, name, cost, red, green, blue, dark FROM mypotiontypes WHERE name = 'GOOGOOGREEN'"))
             purple = connection.execute(sqlalchemy.text("SELECT id, name, cost, red, green, blue, dark FROM mypotiontypes WHERE name = 'burple'"))
+            yellow = connection.execute(sqlalchemy.text("SELECT id, name, cost, red, green, blue, dark FROM mypotiontypes WHERE name = 'yeeLOW'"))
             green_p = connection.execute(sqlalchemy.text("SELECT SUM(potions) FROM ledger WHERE potion_type = 1"))
             red_p = connection.execute(sqlalchemy.text("SELECT SUM(potions) FROM ledger WHERE potion_type = 2"))
             blue_p = connection.execute(sqlalchemy.text("SELECT SUM(potions) FROM ledger WHERE potion_type = 3"))
             purple_p = connection.execute(sqlalchemy.text("SELECT SUM(potions) FROM ledger WHERE potion_type = 4"))
-            
+            yellow_p = connection.execute(sqlalchemy.text("SELECT SUM(potions) FROM ledger WHERE potion_type = 5"))
     except IntegrityError:
         return "INTEGRITY ERROR!"
     """
@@ -47,6 +48,18 @@ def get_catalog():
                     "quantity": 1,
                     "price": red[2],
                     "potion_type": [red[3], red[4], red[5], red[6]],
+                }
+        )
+    yellow = yellow.fetchone()
+    yellow_p = yellow_p.fetchone()[0]
+    if  yellow_p is not None and yellow_p > 0:
+        mylist.append(
+                {
+                    "sku": yellow[1],
+                    "name": yellow[1],
+                    "quantity": 1,
+                    "price": yellow[2],
+                    "potion_type": [yellow[3], yellow[4], yellow[5], yellow[6]],
                 }
         )
     green = green.fetchone()

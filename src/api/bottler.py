@@ -82,7 +82,6 @@ def get_bottle_plan():
             ml_green = ml_green.fetchone()
             ml_red = ml_red.fetchone()
             ml_blue = ml_blue.fetchone()
-            ml_purple = ml_purple.fetchone()
             
             potioncount = connection.execute(sqlalchemy.text("SELECT potion_history FROM global_inventory"))
             potionhistory = potioncount.fetchone()[0]

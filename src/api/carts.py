@@ -32,10 +32,60 @@ def search_orders(
 ):
     
     result = []
+    Dict = {}
     with db.engine.begin() as connection:
+        if customer_name == "" and potion_sku == "":
+            # ASC ORDER
+            if sort_order == search_sort_order.asc:
+                # TIME
+                if sort_col == search_sort_options.timestamp:
+                    print("sorting by time asc!")
+                    rows = connection.execute(sqlalchemy.text("SELECT cart_id, customer, potion_id, gold, time, potion_name FROM search_orders ORDER BY time ASC"))
+                elif sort_col == search_sort_options.line_item_total: # LINE_ITEM_TOTAL
+                    print("sorting by line_item asc!")
+                    rows = connection.execute(sqlalchemy.text("SELECT cart_id, customer, potion_id, gold, time, potion_name FROM search_orders ORDER BY gold ASC"))
+                elif sort_col == search_sort_options.item_sku: # ITEM_SKU
+                    print("sorting by item_sku asc!")
+                    rows = connection.execute(sqlalchemy.text("SELECT cart_id, customer, potion_id, gold, time, potion_name FROM search_orders ORDER BY potion_name ASC"))
+                elif sort_col == search_sort_options.customer_name: # NAME
+                    print("sorting by name asc!")
+                    rows = connection.execute(sqlalchemy.text("SELECT cart_id, customer, potion_id, gold, time, potion_name FROM search_orders ORDER BY customer ASC"))
+                else: # CART_ID
+                    print("sorting by cart_id asc!")
+                    rows = connection.execute(sqlalchemy.text("SELECT cart_id, customer, potion_id, gold, time, potion_name FROM search_orders ORDER BY cart_id ASC"))
+            
+        # DESC ORDER 
+            elif sort_order == search_sort_order.desc:
+                # TIME
+                if sort_col == search_sort_options.timestamp:
+                    print("sorting by time desc!")
+                    rows = connection.execute(sqlalchemy.text("SELECT cart_id, customer, potion_id, gold, time, potion_name FROM search_orders ORDER BY time DESC"))
+                elif sort_col == search_sort_options.line_item_total: # LINE_ITEM_TOTAL
+                    print("sorting by line_item desc!")
+                    rows = connection.execute(sqlalchemy.text("SELECT cart_id, customer, potion_id, gold, time, potion_name FROM search_orders ORDER BY gold DESC"))
+                elif sort_col == search_sort_options.item_sku: # ITEM_SKU
+                    print("sorting by item_sku desc!")
+                    rows = connection.execute(sqlalchemy.text("SELECT cart_id, customer, potion_id, gold, time, potion_name FROM search_orders ORDER BY potion_name DESC"))
+                elif sort_col == search_sort_options.customer_name: # NAME
+                    print("sorting by name desc!")
+                    rows = connection.execute(sqlalchemy.text("SELECT cart_id, customer, potion_id, gold, time, potion_name FROM search_orders ORDER BY customer DESC"))
+                else: # CART_ID
+                    print("sorting by cart_id desc!")
+                    rows = connection.execute(sqlalchemy.text("SELECT cart_id, customer, potion_id, gold, time, potion_name FROM search_orders ORDER BY cart_id DESC"))
+        else:
+            if potion_sku != "" and customer_name != "":
+                rows = connection.execute(sqlalchemy.text("SELECT cart_id, customer, potion_id, gold, time, potion_name FROM search_orders WHERE UPPER(customer) LIKE UPPER(:name) AND UPPER(potion_name) LIKE UPPER(:p_name) ORDER BY potion_name, customer"), [{"name": customer_name, "p_name": potion_sku}])
+            elif potion_sku != "":
+                rows = connection.execute(sqlalchemy.text("SELECT cart_id, customer, potion_id, gold, time, potion_name FROM search_orders WHERE UPPER(potion_name) LIKE UPPER(:p_name) ORDER BY potion_name"), [{"p_name": potion_sku}])
+            elif customer_name != "":
+                rows = connection.execute(sqlalchemy.text("SELECT cart_id, customer, potion_id, gold, time, potion_name FROM search_orders WHERE UPPER(customer) LIKE UPPER(:name) ORDER BY customer"), [{"name": customer_name}])
+
         # get the starting id in cart_items
-        rows = connection.execute(sqlalchemy.text("SELECT customer, potion_id, gold, time FROM search_orders ORDER BY :customer_name"), [{"customer_name": customer_name}])
-        result.append(rows.fetchall())
+        for i in rows.fetchall():
+            # FIX AMOUNT OF POTIONS LATER
+            Dict = dict({"line_item_id": i[0], "item_sku": "1 " + i[5], "customer_name": i[1], "line_item_total": i[3], "timestamp": i[4]})
+            result.append(Dict)
+    print(result)
         
     """
     Search for cart line items by customer name and/or potion sku.
@@ -132,7 +182,7 @@ def checkout(cart_id: int, cart_checkout: CartCheckout):
             # purchasing one bottle at a time
             connection.execute(sqlalchemy.text("INSERT INTO ledger (gold, potions, ml, potion_type, description, cart_id) VALUES (:cost, -:potions, 0, :potion_type_id, 'sold potion', :cart_id)"), [{"cost": cost, "potion_type_id": potion_type_id, "potions": quantity, "cart_id": cart_id}])
             name = connection.execute(sqlalchemy.text("SELECT customer_name FROM carts WHERE cart_id = :id"), [{"id": cart_id}])
-            connection.execute(sqlalchemy.text("INSERT INTO search_orders (customer, potion_id, gold, cart_id) VALUES (:name ,:potion_type_id, :cost, :cart_id)"), [{"name": name.fetchone()[0], "cost": cost, "potion_type_id": potion_type_id, "cart_id": cart_id}])
+            connection.execute(sqlalchemy.text("INSERT INTO search_orders (customer, potion_id, gold, cart_id, potion_name) VALUES (:name ,:potion_type_id, :cost, :cart_id, :potion_name)"), [{"name": name.fetchone()[0], "cost": cost, "potion_type_id": potion_type_id, "cart_id": cart_id, "potion_name": potion_name}])
             connection.execute(sqlalchemy.text("UPDATE cart_items SET status = 'successful' WHERE customer_cart_id = :cart_id"), [{"cart_id": cart_id}])
             totalgold = cost * quantity
         except IntegrityError:

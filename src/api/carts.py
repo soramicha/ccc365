@@ -26,7 +26,7 @@ class search_sort_order(str, Enum):
 def search_orders(
     customer_name: str = "",
     potion_sku: str = "",
-    search_page: str = "1",
+    search_page: str = "0",
     sort_col: search_sort_options = search_sort_options.timestamp,
     sort_order: search_sort_order = search_sort_order.desc,
 ):
@@ -35,11 +35,14 @@ def search_orders(
     sql = "SELECT cart_id, customer, potion_id, gold, time, potion_name FROM search_orders "
     # both name and potion name are used
     if potion_sku != "" and customer_name != "":
-        sql += "WHERE potion_name = " + potion_sku + " AND customer = " + customer_name
+        print("both potion name and customer name searched")
+        sql += f"WHERE UPPER(potion_name) LIKE UPPER('{potion_sku}') AND UPPER(customer) LIKE UPPER('{customer_name}')"
     elif potion_sku != "":
-        sql += "WHERE potion_name = " + potion_sku
+        print("potion_sku searched")
+        sql += f"WHERE UPPER(potion_name) LIKE UPPER('{potion_sku}')"
     elif customer_name != "":
-         sql += "WHERE customer = " + customer_name
+        print("customer name searched")
+        sql += f"WHERE UPPER(customer) LIKE UPPER('{customer_name}')"
     
     # sort through time
     if sort_col == search_sort_options.timestamp:
@@ -63,6 +66,7 @@ def search_orders(
     sql += " OFFSET " + str(offset) + " LIMIT 5"
     result = []
     Dict = {}
+    print(sql)
     # execute the command
     with db.engine.begin() as connection:
         rows = connection.execute(sqlalchemy.text(sql))
@@ -74,14 +78,15 @@ def search_orders(
             result.append(Dict)
     print(result)
     
-    prev = 1
-    next = 1
-    if search_page > 1 and search_page < int(count/5):
+    prev = 0
+    next = 0
+    # if it's on a page more than one and there are still more results
+    if search_page >= 0 and search_page < int(count/5):
         next = search_page + 1
-        prev = search_page - 1
-    elif search_page == 1:
-        next = search_page + 1
-    elif search_page > 1 and search_page == int(count/5):
+        if search_page != 0:
+            prev = search_page - 1
+    # if it's at the max page
+    elif search_page > 0 and search_page == int(count/5):
         prev = search_page - 1
 
     """

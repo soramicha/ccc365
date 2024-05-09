@@ -64,7 +64,7 @@ def search_orders(
     
     offset = 0
     if search_page != 1:
-        offset = 5 * search_page
+        offset = 5 * (search_page - 1)
     sql += " OFFSET " + str(offset) + " LIMIT 5"
     result = []
     Dict = {}

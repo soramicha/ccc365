@@ -83,8 +83,9 @@ def search_orders(
     # if it's on a page more than one and there are still more results
     if search_page >= 0 and search_page < int(count/5):
         next = search_page + 1
-        if search_page != 0:
-            prev = search_page - 1
+        prev = search_page - 1
+        if search_page == 0:
+            prev = 0
     # if it's at the max page
     elif search_page > 0 and search_page == int(count/5):
         prev = search_page - 1

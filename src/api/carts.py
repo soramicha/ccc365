@@ -91,9 +91,9 @@ def search_orders(
             print("doesn't show prev button")
             prev = 0
     # if it's at the max page
-    elif search_page > 1 and search_page == int(count/5):
+    elif search_page > 1 and search_page == (int(count/5) + 1):
         prev = search_page - 1
-
+    print("count/5 is" + str(int(count/5) + 1) + "and search page is " + str(search_page))
     """
     Search for cart line items by customer name and/or potion sku.
 

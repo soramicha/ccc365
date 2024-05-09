@@ -86,6 +86,7 @@ def search_orders(
         next = search_page + 1
         prev = search_page - 1
         if search_page == 0:
+            print("doesn't show prev button")
             prev = 0
     # if it's at the max page
     elif search_page > 0 and search_page == int(count/5):

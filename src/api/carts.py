@@ -26,7 +26,7 @@ class search_sort_order(str, Enum):
 def search_orders(
     customer_name: str = "",
     potion_sku: str = "",
-    search_page: str = "0",
+    search_page: str = "1",
     sort_col: search_sort_options = search_sort_options.timestamp,
     sort_order: search_sort_order = search_sort_order.desc,
 ):
@@ -62,7 +62,9 @@ def search_orders(
     else:
         sql += "DESC"
     
-    offset = 5 * search_page
+    offset = 0
+    if search_page != 1:
+        offset = 5 * search_page
     sql += " OFFSET " + str(offset) + " LIMIT 5"
     result = []
     Dict = {}
@@ -78,18 +80,18 @@ def search_orders(
             result.append(Dict)
     print(result)
     
-    prev = 0
-    next = 0
+    prev = 1
+    next = 1
     print(str(search_page) + " is the search page")
     # if it's on a page more than one and there are still more results
-    if search_page >= 0 and search_page < int(count/5):
+    if search_page >= 1 and search_page < int(count/5):
         next = search_page + 1
         prev = search_page - 1
-        if search_page == 0:
+        if search_page == 1:
             print("doesn't show prev button")
             prev = 0
     # if it's at the max page
-    elif search_page > 0 and search_page == int(count/5):
+    elif search_page > 1 and search_page == int(count/5):
         prev = search_page - 1
 
     """

@@ -84,7 +84,7 @@ def search_orders(
     next = 1
     print(str(search_page) + " is the search page")
     # if it's on a page more than one and there are still more results
-    if search_page >= 1 and search_page < int(count/5):
+    if search_page >= 1 and search_page < (int(count/5) + 1):
         next = search_page + 1
         prev = search_page - 1
         if search_page == 1:

@@ -27,11 +27,11 @@ def post_deliver_barrels(barrels_delivered: list[Barrel], order_id: int):
     with db.engine.begin() as connection:
         try:
             # no need for potion keep track in mypotiontypes
-            if barrels_delivered[0].sku == "SMALL_BLUE_BARREL" or barrels_delivered[0].sku == "MINI_BLUE_BARREL":
+            if barrels_delivered[0].sku == "SMALL_BLUE_BARREL" or barrels_delivered[0].sku == "MINI_BLUE_BARREL" or barrels_delivered[0].sku == "MEDIUM_BLUE_BARREL" or barrels_delivered[0].sku == "LARGE_BLUE_BARREL":
                 connection.execute(sqlalchemy.text("INSERT INTO ledger (gold, potions, ml, potion_type, description) VALUES (-:gold, 0, :ml, 3, 'purchased small blue barrel')"), [{"gold": barrels_delivered[0].price, "ml": barrels_delivered[0].ml_per_barrel}])
-            if barrels_delivered[0].sku == "SMALL_RED_BARREL" or barrels_delivered[0].sku == "MINI_RED_BARREL":
+            if barrels_delivered[0].sku == "SMALL_RED_BARREL" or barrels_delivered[0].sku == "MINI_RED_BARREL" or barrels_delivered[0].sku == "MEDIUM_RED_BARREL" or barrels_delivered[0].sku == "LARGE_RED_BARREL":
                 connection.execute(sqlalchemy.text("INSERT INTO ledger (gold, potions, ml, potion_type, description) VALUES (-:gold, 0, :ml, 2, 'purchased small red barrel')"), [{"gold": barrels_delivered[0].price, "ml": barrels_delivered[0].ml_per_barrel}])
-            if barrels_delivered[0].sku == "SMALL_GREEN_BARREL" or barrels_delivered[0].sku == "MINI_GREEN_BARREL":
+            if barrels_delivered[0].sku == "SMALL_GREEN_BARREL" or barrels_delivered[0].sku == "MINI_GREEN_BARREL" or barrels_delivered[0].sku == "MEDIUM_GREEN_BARREL" or barrels_delivered[0].sku == "LARGE_GREEN_BARREL":
                 connection.execute(sqlalchemy.text("INSERT INTO ledger (gold, potions, ml, potion_type, description) VALUES (-:gold, 0, :ml, 1, 'purchased small green barrel')"), [{"gold": barrels_delivered[0].price, "ml": barrels_delivered[0].ml_per_barrel}])
             connection.execute(sqlalchemy.text("UPDATE global_inventory SET barrel_history = barrel_history + 1"))
         except IntegrityError:
@@ -57,24 +57,24 @@ def get_wholesale_purchase_plan(wholesale_catalog: list[Barrel]):
             count = count.fetchone()[0]
             print(f"catalog at count {count} with modulo {count % 3}")
             
-            if count % 3 == 1 and gold >= 100:
+            if count % 3 == 1 and gold >= 300:
                 return [
                     {
-                        "sku": "SMALL_BLUE_BARREL",
+                        "sku": "MEDIUM_BLUE_BARREL",
                         "quantity": 1,
                     }
                 ]
-            elif count % 3 == 0 and gold >= 100:
+            elif count % 3 == 0 and gold >= 250:
                 return [
                         {
-                            "sku": "SMALL_RED_BARREL",
+                            "sku": "MEDIUM_RED_BARREL",
                             "quantity": 1,
                         }
                     ]
-            elif count % 3 == 2 and gold >= 100:
+            elif count % 3 == 2 and gold >= 250:
                 return [
                     {
-                        "sku": "SMALL_GREEN_BARREL",
+                        "sku": "MEDIUM_GREEN_BARREL",
                         "quantity": 1,
                     }
                 ]

@@ -62,7 +62,7 @@ def deliver_capacity_plan(capacity_purchase : CapacityPurchase, order_id: int):
     try:
         with db.engine.begin() as connection:
             total = 1000 * (capacity_purchase.potion_capacity + capacity_purchase.ml_capacity)
-            connection.execute(sqlalchemy.text("INSERT INTO ledger (gold, description) VALUES (-1000 * :total, 'purchased capacity plan')"), [{"total": total}])
+            connection.execute(sqlalchemy.text("INSERT INTO ledger (gold, description) VALUES (:total, 'purchased capacity plan')"), [{"total": total}])
     except IntegrityError:
         return "INTEGRITY ERROR!"
     return "Successfully delivered capacity plan"

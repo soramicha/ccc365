@@ -87,7 +87,7 @@ def get_bottle_plan():
             if ml_blue[0] >= 50 and ml_red[0] >= 50 or (potionhistory % 4 == 2 and ml_red[0] >= 50 and ml_blue[0] >= 50):
                     purplergbd = connection.execute(sqlalchemy.text("SELECT red, green, blue, dark FROM mypotiontypes WHERE name = 'burple'"))
                     rgbd = purplergbd.fetchone()
-                    if ml_red[0] >= 500 and ml_blue >= 500:
+                    if ml_red[0] >= 500 and ml_blue[0] >= 500:
                         quantity = 10
                     return [
                             {
@@ -99,7 +99,7 @@ def get_bottle_plan():
             elif ml_green[0] >= 50 and ml_red[0] >= 50 or (potionhistory % 4 == 2 and ml_red[0] >= 50 and ml_green[0] >= 50):
                     yellowrgbd = connection.execute(sqlalchemy.text("SELECT red, green, blue, dark FROM mypotiontypes WHERE name = 'yeeLOW'"))
                     rgbd = yellowrgbd.fetchone()
-                    if ml_red[0] >= 500 and ml_green >= 500:
+                    if ml_red[0] >= 500 and ml_green[0] >= 500:
                         quantity = 10
                     return [
                             {
@@ -110,7 +110,7 @@ def get_bottle_plan():
             elif ml_blue[0] >= 100 or (potionhistory % 4 == 1 and ml_blue[0] >= 100):
                     bluergbd = connection.execute(sqlalchemy.text("SELECT red, green, blue, dark FROM mypotiontypes WHERE name = 'bluey_mooey'"))
                     rgbd = bluergbd.fetchone()
-                    if ml_blue >= 500:
+                    if ml_blue[0] >= 500:
                         quantity = 10
                     return [
                             {
@@ -121,7 +121,7 @@ def get_bottle_plan():
             elif ml_red[0] >= 100 or (potionhistory % 4 == 0 and ml_red[0] >= 100):
                     redrgbd = connection.execute(sqlalchemy.text("SELECT red, green, blue, dark FROM mypotiontypes WHERE name = 'RARA_RED'"))
                     rgbd = redrgbd.fetchone()
-                    if ml_red >= 500:
+                    if ml_red[0] >= 500:
                         quantity = 10
                     return [
                         {
@@ -132,7 +132,7 @@ def get_bottle_plan():
             elif ml_green[0] >= 100 or (potionhistory % 4 == 3 and ml_green[0] >= 100):
                     greenrgbd = connection.execute(sqlalchemy.text("SELECT red, green, blue, dark FROM mypotiontypes WHERE name = 'GOOGOOGREEN'"))
                     rgbd = greenrgbd.fetchone()
-                    if ml_green >= 500:
+                    if ml_green[0] >= 500:
                         quantity = 10
                     return [
                             {

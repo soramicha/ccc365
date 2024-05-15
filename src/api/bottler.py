@@ -92,12 +92,12 @@ def get_bottle_plan():
                     rgbd = purplergbd.fetchone()
                     if ml_red[0] >= 500 and ml_blue[0] >= 500:
                         quantity = 10
-                    mylist.append([
+                    mylist.append(
                             {
                                 "potion_type": [rgbd[0], rgbd[1], rgbd[2], rgbd[3]],
                                 "quantity": quantity,
                             }
-                    ])
+                    )
                     # get updated stats
                     b -= 50 * quantity
                     r -= 50 * quantity
@@ -109,12 +109,12 @@ def get_bottle_plan():
                         quantity = 10
                     else:
                         quantity = 1
-                    mylist.append([
+                    mylist.append(
                             {
                                 "potion_type": [rgbd[0], rgbd[1], rgbd[2], rgbd[3]],
                                 "quantity": quantity,
                             }
-                    ])
+                    )
                     # get updated stats
                     g -= 50 * quantity
                     r -= 50 * quantity
@@ -125,12 +125,12 @@ def get_bottle_plan():
                         quantity = 10
                     else:
                         quantity = 1
-                    mylist.append([
+                    mylist.append(
                             {
                                 "potion_type": [rgbd[0], rgbd[1], rgbd[2], rgbd[3]],
                                 "quantity": quantity,
                             }
-                        ])
+                        )
                     b -= 100 * quantity
             if r >= 100 or (potionhistory % 4 == 0 and r >= 100):
                     redrgbd = connection.execute(sqlalchemy.text("SELECT red, green, blue, dark FROM mypotiontypes WHERE name = 'RARA_RED'"))
@@ -139,12 +139,12 @@ def get_bottle_plan():
                         quantity = 10
                     else:
                         quantity = 1
-                    mylist.append([
+                    mylist.append(
                         {
                             "potion_type": [rgbd[0], rgbd[1], rgbd[2], rgbd[3]],
                             "quantity": quantity,
                         }
-                    ])
+                    )
                     r -= 100 * quantity
             if g >= 100 or (potionhistory % 4 == 3 and g >= 100):
                     greenrgbd = connection.execute(sqlalchemy.text("SELECT red, green, blue, dark FROM mypotiontypes WHERE name = 'GOOGOOGREEN'"))
@@ -153,12 +153,12 @@ def get_bottle_plan():
                         quantity = 10
                     else:
                         quantity = 1
-                    mylist.append([
+                    mylist.append(
                             {
                                 "potion_type": [rgbd[0], rgbd[1], rgbd[2], rgbd[3]],
                                 "quantity": quantity,
                             }
-                        ])
+                        )
                     g -= 100 * quantity
             print("remaining colored ml: blue: " + str(b) + " green: " + str(g) + " red: " + str(r))
             return mylist

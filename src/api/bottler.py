@@ -83,6 +83,9 @@ def get_bottle_plan():
             potionhistory = potioncount.fetchone()[0]
             quantity = 1
             mylist = []
+            b = ml_blue[0]
+            r = ml_red[0]
+            g = ml_green[0]
             # purple potion
             if ml_blue[0] >= 50 and ml_red[0] >= 50 or (potionhistory % 4 == 2 and ml_red[0] >= 50 and ml_blue[0] >= 50):
                     purplergbd = connection.execute(sqlalchemy.text("SELECT red, green, blue, dark FROM mypotiontypes WHERE name = 'burple'"))
@@ -96,13 +99,13 @@ def get_bottle_plan():
                             }
                     ])
                     # get updated stats
-                    ml_blue[0] -= 50 * quantity
-                    ml_red[0] -= 50 * quantity
+                    b -= 50 * quantity
+                    r -= 50 * quantity
             # added yeeLOW potion
-            if ml_green[0] >= 50 and ml_red[0] >= 50 or (potionhistory % 4 == 2 and ml_red[0] >= 50 and ml_green[0] >= 50):
+            if g >= 50 and r >= 50 or (potionhistory % 4 == 2 and r >= 50 and g >= 50):
                     yellowrgbd = connection.execute(sqlalchemy.text("SELECT red, green, blue, dark FROM mypotiontypes WHERE name = 'yeeLOW'"))
                     rgbd = yellowrgbd.fetchone()
-                    if ml_red[0] >= 500 and ml_green[0] >= 500:
+                    if r >= 500 and g >= 500:
                         quantity = 10
                     else:
                         quantity = 1
@@ -113,12 +116,12 @@ def get_bottle_plan():
                             }
                     ])
                     # get updated stats
-                    ml_green[0] -= 50 * quantity
-                    ml_red[0] -= 50 * quantity
-            if ml_blue[0] >= 100 or (potionhistory % 4 == 1 and ml_blue[0] >= 100):
+                    g -= 50 * quantity
+                    r -= 50 * quantity
+            if b >= 100 or (potionhistory % 4 == 1 and b >= 100):
                     bluergbd = connection.execute(sqlalchemy.text("SELECT red, green, blue, dark FROM mypotiontypes WHERE name = 'bluey_mooey'"))
                     rgbd = bluergbd.fetchone()
-                    if ml_blue[0] >= 500:
+                    if b >= 500:
                         quantity = 10
                     else:
                         quantity = 1
@@ -128,11 +131,11 @@ def get_bottle_plan():
                                 "quantity": quantity,
                             }
                         ])
-                    ml_blue[0] -= 100 * quantity
-            if ml_red[0] >= 100 or (potionhistory % 4 == 0 and ml_red[0] >= 100):
+                    b -= 100 * quantity
+            if r >= 100 or (potionhistory % 4 == 0 and r >= 100):
                     redrgbd = connection.execute(sqlalchemy.text("SELECT red, green, blue, dark FROM mypotiontypes WHERE name = 'RARA_RED'"))
                     rgbd = redrgbd.fetchone()
-                    if ml_red[0] >= 500:
+                    if r >= 500:
                         quantity = 10
                     else:
                         quantity = 1
@@ -142,11 +145,11 @@ def get_bottle_plan():
                             "quantity": quantity,
                         }
                     ])
-                    ml_red -= 100 * quantity
-            if ml_green[0] >= 100 or (potionhistory % 4 == 3 and ml_green[0] >= 100):
+                    r -= 100 * quantity
+            if g >= 100 or (potionhistory % 4 == 3 and g >= 100):
                     greenrgbd = connection.execute(sqlalchemy.text("SELECT red, green, blue, dark FROM mypotiontypes WHERE name = 'GOOGOOGREEN'"))
                     rgbd = greenrgbd.fetchone()
-                    if ml_green[0] >= 500:
+                    if g >= 500:
                         quantity = 10
                     else:
                         quantity = 1
@@ -156,7 +159,7 @@ def get_bottle_plan():
                                 "quantity": quantity,
                             }
                         ])
-                    ml_green[0] -= 100 * quantity
+                    g -= 100 * quantity
             return mylist
 
 if __name__ == "__main__":

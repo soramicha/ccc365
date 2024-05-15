@@ -31,21 +31,21 @@ def get_capacity_plan():
     Start with 1 capacity for 50 potions and 1 capacity for 10000 ml of potion. Each additional 
     capacity unit costs 1000 gold.
     """
-    
+    p_c = 0
+    m_c = 0
     try:
         with db.engine.begin() as connection:
-            gold = connection.execute(sqlalchemy.text("SELECT SUM(gold), SUM(ml) FROM ledger"))
+            gold = connection.execute(sqlalchemy.text("SELECT SUM(gold), SUM(ml), SUM(potions) FROM ledger"))
         gold = gold.fetchone()
         if gold[0] >= 1000 and gold[1] >= 19000:
-            return {
-                "potion_capacity": 0,
-                "ml_capacity": 1
-            }
+            m_c = 1
+        if gold[0] >= 2000 and gold [2] >= 40:
+            p_c = 1
     except IntegrityError:
         return "INTEGRITY ERROR!"
     return {
-        "potion_capacity": 0,
-        "ml_capacity": 0
+        "potion_capacity": p_c,
+        "ml_capacity": m_c
     }
 
 class CapacityPurchase(BaseModel):

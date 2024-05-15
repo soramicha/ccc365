@@ -160,6 +160,7 @@ def get_bottle_plan():
                             }
                         ])
                     g -= 100 * quantity
+            print("remaining colored ml: blue: " + str(b) + " green: " + str(g) + " red: " + str(r))
             return mylist
 
 if __name__ == "__main__":

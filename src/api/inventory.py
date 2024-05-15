@@ -36,7 +36,7 @@ def get_capacity_plan():
         with db.engine.begin() as connection:
             gold = connection.execute(sqlalchemy.text("SELECT SUM(gold), SUM(ml) FROM ledger"))
         gold = gold.fetchone()
-        if gold[0] >= 1000 and gold[1] >= 8000:
+        if gold[0] >= 1000 and gold[1] >= 19000:
             return {
                 "potion_capacity": 0,
                 "ml_capacity": 1

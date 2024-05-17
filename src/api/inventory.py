@@ -37,10 +37,10 @@ def get_capacity_plan():
         with db.engine.begin() as connection:
             gold = connection.execute(sqlalchemy.text("SELECT SUM(gold), SUM(ml), SUM(potions) FROM ledger"))
         gold = gold.fetchone()
-        if gold[0] >= 1000 and gold[1] >= 19000:
-            m_c = 1
-        if gold[0] >= 2000 and gold [2] >= 40:
+        if gold[0] >= 1000 and gold [2] >= 40:
             p_c = 1
+        if gold[0] >= 2000 and gold[1] >= 19000:
+            m_c = 1
     except IntegrityError:
         return "INTEGRITY ERROR!"
     return {
